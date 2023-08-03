@@ -1,0 +1,178 @@
+{
+  "name": "kubernetes_hpa_status_incident",
+  "description": "A Kubernetes HPA (Horizontal Pod Autoscaler) Status Incident refers to an issue where the autoscaling feature of Kubernetes, which automatically scales the number of pods in a replication controller, deployment, replica set or stateful set based on observed CPU utilization, is not functioning as expected. This can result in insufficient resources being provisioned to handle incoming load and potentially lead to service disruptions.",
+  "params": [
+    {
+      "name": "METRIC_THRESHOLD",
+      "value": ""
+    },
+    {
+      "name": "RESOURCE_NAME",
+      "value": ""
+    },
+    {
+      "name": "DEPLOYMENT_NAME",
+      "value": ""
+    },
+    {
+      "name": "POD_NAME",
+      "value": ""
+    },
+    {
+      "name": "RESOURCE_TYPE",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    },
+    {
+      "name": "HPA_NAME",
+      "value": ""
+    },
+    {
+      "name": "MAX_PODS",
+      "value": ""
+    },
+    {
+      "name": "METRIC_NAME",
+      "value": ""
+    },
+    {
+      "name": "CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Kubernetes HPA Status Incident\nA Kubernetes HPA (Horizontal Pod Autoscaler) Status Incident refers to an issue where the autoscaling feature of Kubernetes, which automatically scales the number of pods in a replication controller, deployment, replica set or stateful set based on observed CPU utilization, is not functioning as expected. This can result in insufficient resources being provisioned to handle incoming load and potentially lead to service disruptions."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of all HorizontalPodAutoscalers in the namespace"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get hpa -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of a specific HorizontalPodAutoscaler in the namespace"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe hpa/${HPA_NAME} -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of all pods in the namespace"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get pods -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the CPU and memory usage of a specific pod in the namespace"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl top pod ${POD_NAME} -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the logs of a specific pod in the namespace"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl logs ${POD_NAME} -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of the Kubernetes cluster metrics server"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get deployment metrics-server -n kube-system`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Insufficient resources available in the cluster to support the desired number of pods."
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_resource_availability_check($DEPLOYMENT_NAME, $NAMESPACE, $MAX_PODS)"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Verify that the HPA is correctly configured for the deployment or stateful set in question, and that the minimum and maximum number of pods are set appropriately."
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_hpa_verification($RESOURCE_NAME, $RESOURCE_TYPE, $NAMESPACE, $CLUSTER_NAME)"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the metrics used by the HPA to determine whether to scale up or down the number of pods. Ensure that the metrics are correctly defined and that they reflect the actual resource utilization of the pods."
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_get_hpa_status($METRIC_THRESHOLD, $NAMESPACE, $HPA_NAME, $METRIC_NAME)"
+    },
+    {
+      "name": "cell_20",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## If the metrics are not available or not working as expected, consider using alternative metrics to determine scaling. For example, you can use custom metrics or metrics from external monitoring systems."
+    },
+    {
+      "name": "cell_21",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_check_metrics($DEPLOYMENT_NAME, $NAMESPACE, $METRIC_NAME)"
+    }
+  ]
+}
